@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Квіткова лавка · демо</title>
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #FFFFFF;
+    --soft: #F4F1EA;
+    --line: #E6E2D8;
+    --text: #2B2B28;
+    --muted: #7A776E;
+    --accent: #8A8C6D;
+    --accent-dark: #6E7055;
+    --on-accent: #FFFFFF;
+    --error: #B5533C;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { background: var(--bg); color: var(--text); }
+  body {
+    font-family: 'Open Sans', system-ui, sans-serif;
+    font-size: 15px; line-height: 1.5;
+    padding-bottom: calc(96px + env(safe-area-inset-bottom, 0px));
+    -webkit-font-smoothing: antialiased;
+  }
+  h1, h2, h3, .price, .btn { font-family: 'Montserrat', system-ui, sans-serif; }
+  .wrap { max-width: 560px; margin: 0 auto; padding: 0 16px; }
+
+  /* шапка */
+  header { padding: 20px 0 8px; }
+  .shop { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; }
+  .shop-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
+
+  /* вкладки */
+  .tabs { display: flex; gap: 8px; margin: 16px 0 18px; }
+  .tab {
+    border: 1px solid var(--line); background: var(--bg); color: var(--text);
+    padding: 8px 16px; border-radius: 999px; font: 600 14px 'Open Sans', sans-serif;
+    cursor: pointer;
+  }
+  .tab.active { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+  .tab:focus-visible, .size:focus-visible, .btn:focus-visible, .card:focus-visible,
+  input:focus-visible, select:focus-visible, textarea:focus-visible {
+    outline: 2px solid var(--accent-dark); outline-offset: 2px;
+  }
+
+  /* каталог */
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 12px; }
+  .card {
+    border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+    text-align: center; padding-bottom: 14px; background: var(--bg);
+  }
+  .card .photo { border-radius: 0; }
+  .photo-btn { display: block; width: 100%; border: 0; padding: 0; background: none; cursor: pointer; }
+  .card h3 { font-size: 16px; font-weight: 600; margin: 12px 8px 4px; }
+  .card .size-label { color: var(--muted); font-size: 13px; }
+  .mini { display: inline-flex; border: 1px solid var(--accent); border-radius: 8px; overflow: hidden; margin: 6px 0 8px; }
+  .mini button {
+    border: 0; border-left: 1px solid var(--accent); background: var(--bg); color: var(--accent-dark);
+    min-width: 34px; padding: 6px 4px; font: 600 13px 'Montserrat', sans-serif; cursor: pointer;
+  }
+  .mini button:first-child { border-left: 0; }
+  .mini button.active { background: var(--accent); color: var(--on-accent); }
+  .card .card-price { font: 600 17px 'Montserrat', sans-serif; margin-bottom: 10px; }
+  .order-btn {
+    width: calc(100% - 24px); border: 1px solid var(--accent); background: var(--bg); color: var(--accent-dark);
+    border-radius: 10px; padding: 10px; font: 600 14px 'Montserrat', sans-serif; cursor: pointer;
+  }
+  .order-btn:active { background: var(--accent); color: var(--on-accent); }
+  .photo {
+    aspect-ratio: 4 / 5; border-radius: 14px; overflow: hidden;
+    background: var(--soft); position: relative;
+  }
+  .photo img, .photo svg { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .badge {
+    position: absolute; top: 10px; left: 10px; background: rgba(255,255,255,.92);
+    color: var(--accent-dark); font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
+  }
+
+  /* сторінка букета */
+  .back { background: none; border: 0; color: var(--accent-dark); font: 600 15px 'Open Sans', sans-serif;
+    padding: 18px 0 12px; cursor: pointer; }
+  .detail .photo { aspect-ratio: 1 / 1; border-radius: 18px; }
+  .detail h2 { font-size: 22px; margin: 16px 0 6px; }
+  .desc { color: var(--text); }
+  .sizes { display: flex; gap: 8px; margin: 16px 0 6px; }
+  .size {
+    flex: 1; border: 1px solid var(--line); background: var(--bg); border-radius: 12px;
+    padding: 10px 6px; cursor: pointer; font: 600 15px 'Montserrat', sans-serif; color: var(--text);
+  }
+  .size small { display: block; font: 400 12px 'Open Sans', sans-serif; color: var(--muted); }
+  .size.active { border-color: var(--accent); background: var(--accent); color: var(--on-accent); }
+  .size.active small { color: var(--on-accent); }
+  .price { font-size: 26px; font-weight: 700; margin: 10px 0 4px; }
+  .note {
+    background: var(--soft); border-radius: 14px; padding: 14px 16px; margin: 18px 0;
+    font-size: 14px;
+  }
+
+  /* форма */
+  .form h3 { font-size: 18px; margin: 26px 0 12px; }
+  .field { margin-bottom: 14px; }
+  label { display: block; font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  input, select, textarea {
+    width: 100%; border: 1px solid var(--line); border-radius: 12px; background: var(--bg);
+    padding: 12px 14px; font: 400 15px 'Open Sans', sans-serif; color: var(--text);
+    appearance: none; -webkit-appearance: none;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  .seg { display: flex; border: 1px solid var(--line); border-radius: 12px; overflow: hidden; }
+  .seg button { flex: 1; border: 0; background: var(--bg); padding: 12px; cursor: pointer;
+    font: 600 14px 'Open Sans', sans-serif; color: var(--text); }
+  .seg button.active { background: var(--accent); color: var(--on-accent); }
+  .err { color: var(--error); font-size: 13px; margin-top: 4px; display: none; }
+  .field.invalid input, .field.invalid select { border-color: var(--error); }
+  .field.invalid .err { display: block; }
+
+  /* нижня кнопка */
+  .bar {
+    position: fixed; left: 0; right: 0; bottom: 0; background: var(--bg);
+    border-top: 1px solid var(--line);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
+  }
+  .btn {
+    display: block; width: 100%; max-width: 528px; margin: 0 auto; border: 0; border-radius: 14px;
+    background: var(--accent); color: var(--on-accent); font-size: 16px; font-weight: 600;
+    padding: 16px; cursor: pointer;
+  }
+  .btn:active { background: var(--accent-dark); }
+
+  /* дякуємо */
+  .thanks { text-align: center; padding: 64px 8px 0; }
+  .thanks .circle { width: 72px; height: 72px; border-radius: 50%; background: var(--accent);
+    color: #fff; display: grid; place-items: center; margin: 0 auto 20px; font-size: 34px; }
+  .thanks h2 { font-size: 22px; margin-bottom: 10px; }
+  .thanks p { color: var(--muted); max-width: 340px; margin: 0 auto 8px; }
+  .summary { background: var(--soft); border-radius: 14px; padding: 14px 16px; margin: 22px auto 0;
+    max-width: 360px; text-align: left; font-size: 14px; }
+
+  /* додатки */
+  .block h3 { font-size: 18px; margin: 4px 0 12px; }
+  .extras { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .extra {
+    border: 1px solid var(--line); background: var(--bg); border-radius: 12px; padding: 12px;
+    text-align: left; cursor: pointer; color: var(--text); font: 400 14px 'Open Sans', sans-serif;
+  }
+  .extra b { display: block; font-weight: 600; }
+  .extra span { color: var(--muted); font-size: 13px; }
+  .extra.active { border-color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .extra.active span { color: var(--accent-dark); }
+  .extra:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 2px; }
+
+  /* підсумок суми */
+  .totals { border: 1px solid var(--line); border-radius: 14px; padding: 14px 16px; margin: 8px 0 10px; font-size: 14px; }
+  .row { display: flex; justify-content: space-between; gap: 12px; padding: 3px 0; }
+  .row.sum { border-top: 1px solid var(--line); margin-top: 8px; padding-top: 10px; font: 600 16px 'Montserrat', sans-serif; }
+  .row.now { color: var(--accent-dark); font-weight: 600; }
+  .pay-hint { color: var(--muted); font-size: 13px; margin-top: 6px; }
+  .demo-note { background: var(--soft); border-radius: 14px; padding: 14px 16px; margin: 16px auto 0;
+    max-width: 360px; font-size: 14px; text-align: left; }
+  .thanks .btn { max-width: 360px; margin-top: 18px; }
+
+  .hidden { display: none !important; }
+  .footer-sign { color: var(--accent); font-size: 12px; text-align: center; margin: 28px 0 8px; }
+  @media (prefers-reduced-motion: no-preference) {
+    .screen { animation: in .25s ease-out; }
+    @keyframes in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <!-- ЕКРАН 1: каталог -->
+  <section id="catalog" class="screen">
+    <header>
+      <div class="shop">Квіткова лавка</div>
+      <div class="shop-sub">Харків · доставка або самовивіз</div>
+    </header>
+    <div class="tabs" role="tablist">
+      <button class="tab active" data-filter="all">Усі</button>
+      <button class="tab" data-filter="classic">Завжди в наявності</button>
+      <button class="tab" data-filter="season">Сезонні</button>
+    </div>
+    <div class="grid" id="grid"></div>
+    <div class="footer-sign">демо від @jenikka_dreamer</div>
+  </section>
+
+  <!-- ЕКРАН 2: букет + замовлення -->
+  <section id="detail" class="screen detail hidden">
+    <button class="back" id="backBtn">← До каталогу</button>
+    <div class="photo" id="dPhoto"></div>
+    <h2 id="dName"></h2>
+    <p class="desc" id="dDesc"></p>
+    <div class="sizes" id="dSizes"></div>
+    <div class="price" id="dPrice"></div>
+    <div class="note" id="dNote"></div>
+
+    <div class="block">
+      <h3>Додати до букета</h3>
+      <div class="extras" id="extras"></div>
+    </div>
+
+    <form class="form" id="orderForm" novalidate>
+      <h3>Оформлення замовлення</h3>
+
+      <div class="field">
+        <label>Як отримати</label>
+        <div class="seg" id="deliverySeg">
+          <button type="button" class="active" data-v="delivery">Доставка (від 150 грн)</button>
+          <button type="button" data-v="pickup">Самовивіз</button>
+        </div>
+      </div>
+
+      <div class="field" data-req>
+        <label for="fDate">Дата</label>
+        <select id="fDate"></select>
+        <div class="err">Оберіть дату</div>
+      </div>
+
+      <div class="field" data-req>
+        <label for="fTime">Час</label>
+        <select id="fTime">
+          <option value="">Оберіть проміжок</option>
+          <option>09:00 - 12:00</option>
+          <option>12:00 - 15:00</option>
+          <option>15:00 - 18:00</option>
+          <option>18:00 - 21:00</option>
+        </select>
+        <div class="err">Оберіть час</div>
+      </div>
+
+      <div class="field" data-req id="addrField">
+        <label for="fAddr">Адреса отримувача</label>
+        <input id="fAddr" type="text" placeholder="Вулиця, будинок, квартира">
+        <div class="err">Вкажіть адресу</div>
+      </div>
+
+      <div class="field" data-req>
+        <label for="fName">Імʼя отримувача</label>
+        <input id="fName" type="text" placeholder="Кому даруємо">
+        <div class="err">Вкажіть імʼя</div>
+      </div>
+
+      <div class="field" data-req>
+        <label for="fPhone">Телефон отримувача</label>
+        <input id="fPhone" type="tel" inputmode="tel" placeholder="+380 __ ___ __ __">
+        <div class="err">Вкажіть телефон</div>
+      </div>
+
+      <div class="field">
+        <label for="fNote">Побажання або текст листівки</label>
+        <textarea id="fNote" placeholder="Необовʼязково"></textarea>
+      </div>
+
+      <div class="field">
+        <label>Оплата</label>
+        <div class="seg" id="paySeg">
+          <button type="button" class="active" data-v="prepay">Передоплата 50%</button>
+          <button type="button" data-v="full">Вся сума</button>
+        </div>
+        <div class="pay-hint" id="payHint"></div>
+      </div>
+
+      <div class="totals" id="totals"></div>
+    </form>
+  </section>
+
+  <!-- ЕКРАН 3: дякуємо -->
+  <section id="thanks" class="screen thanks hidden">
+    <div class="circle hidden" id="tCircle">✓</div>
+    <h2 id="tTitle">Залишилось оплатити</h2>
+    <p id="tText">Після оплати замовлення одразу потрапить до флориста.</p>
+    <div class="summary" id="summary"></div>
+    <button class="btn" id="payBtn">Оплатити</button>
+    <div class="demo-note hidden" id="payNote">Це демо. У справжньому магазині тут відкриється сторінка оплати банку, з яким працює магазин (monobank, LiqPay, WayForPay тощо), з уже підставленою сумою.</div>
+    <button class="back" id="againBtn" style="margin-top:16px">← Повернутись до каталогу</button>
+  </section>
+</div>
+
+<div class="bar" id="bar">
+  <button class="btn" id="mainBtn">Оформити замовлення</button>
+</div>
+
+<script>
+/* ============================================================
+   КАТАЛОГ. Щоб додати своє фото: впиши посилання в photo: "..."
+   Якщо photo порожнє, показується намальована заглушка в кольорах букета.
+   type: "classic" (завжди є) або "season" (залежить від наявності)
+   ============================================================ */
+const BOUQUETS = [
+  { id: 1, name: "Ніжний ранок", type: "classic", photo: "",
+    colors: ["#F6C6CF", "#FBE3E6", "#FFFFFF", "#E9A3B4"],
+    desc: "Кремові та пудрово-рожеві троянди з евкаліптом. Спокійний букет на будь-який привід.",
+    prices: { S: 900, M: 1400, L: 2100, XL: 2900 } },
+  { id: 2, name: "Сонячний", type: "season", photo: "",
+    colors: ["#F4C542", "#FFE08A", "#FFFFFF", "#F2A541"],
+    desc: "Соняшники, ромашки й зелень. Пахне літом і настроєм.",
+    prices: { S: 750, M: 1150, L: 1700, XL: 2300 } },
+  { id: 3, name: "Лавандове поле", type: "season", photo: "",
+    colors: ["#B9A7E0", "#D9CEF2", "#9C8BD1", "#FFFFFF"],
+    desc: "Гортензія, кущова троянда і лізіантус у бузкових відтінках.",
+    prices: { S: 1100, M: 1650, L: 2400, XL: 3200 } },
+  { id: 4, name: "Класика червона", type: "classic", photo: "",
+    colors: ["#C0283C", "#D94356", "#A51F33", "#E35D6E"],
+    desc: "Червоні троянди в крафтовому папері. Коли хочеться сказати головне без слів.",
+    prices: { S: 1000, M: 1600, L: 2500, XL: 3500 } },
+  { id: 5, name: "Біла хмаринка", type: "classic", photo: "",
+    colors: ["#FFFFFF", "#F3F1EC", "#E8E4D9", "#DCE6D2"],
+    desc: "Білі хризантеми, гвоздика і гіпсофіла. Легкий і світлий.",
+    prices: { S: 700, M: 1050, L: 1550, XL: 2100 } },
+  { id: 6, name: "Персиковий", type: "season", photo: "",
+    colors: ["#F7B58C", "#FAD2B4", "#F39A6B", "#FFFFFF"],
+    desc: "Півонієподібні троянди і ранункулюси в персикових тонах.",
+    prices: { S: 1200, M: 1800, L: 2650, XL: 3600 } }
+];
+
+/* Додатки до замовлення. Ціни міняються тут. */
+const EXTRAS = [
+  { id: "card",    name: "Листівка",          price: 50,  hint: "текст напишіть у побажаннях" },
+  { id: "toy",     name: "Мʼяка іграшка",     price: 350, hint: "ведмедик або зайчик" },
+  { id: "balloon", name: "Повітряні кульки",  price: 250, hint: "3 шт, в тон букета" },
+  { id: "candy",   name: "Цукерки",           price: 300, hint: "коробка 200 г" }
+];
+const DELIVERY_PRICE = 150;
+const PREPAY_PART = 0.5;
+
+const SEASON_NOTE = "Кожен букет збираємо вручну, тому відтінки й квіти можуть трохи відрізнятися від фото. Якщо якихось сезонних квітів не буде, флорист запропонує заміну і узгодить її з вами перед збиранням.";
+const CLASSIC_NOTE = "Кожен букет збираємо вручну, тому він може трохи відрізнятися від фото. Кольорову гаму і настрій зберігаємо.";
+
+/* Telegram */
+const tg = window.Telegram && window.Telegram.WebApp;
+if (tg) { tg.ready(); tg.expand(); }
+
+/* Заглушка-малюнок букета */
+function bouquetSVG(colors, seed) {
+  let s = seed * 9301 + 49297;
+  const rnd = () => (s = (s * 9301 + 49297) % 233280) / 233280;
+  let flowers = "";
+  const leaves = [];
+  for (let i = 0; i < 9; i++) {
+    const a = rnd() * Math.PI * 2, r = 30 + rnd() * 70;
+    leaves.push(`<ellipse cx="${200 + Math.cos(a) * r * 1.4}" cy="${210 + Math.sin(a) * r}" rx="26" ry="12"
+      fill="#8A8C6D" opacity=".55" transform="rotate(${a * 57} ${200 + Math.cos(a) * r * 1.4} ${210 + Math.sin(a) * r})"/>`);
+  }
+  for (let i = 0; i < 16; i++) {
+    const a = rnd() * Math.PI * 2, r = rnd() * 85;
+    const x = 200 + Math.cos(a) * r * 1.2, y = 200 + Math.sin(a) * r * 0.9;
+    const size = 26 + rnd() * 20, c = colors[i % colors.length];
+    flowers += `<circle cx="${x}" cy="${y}" r="${size}" fill="${c}" stroke="rgba(0,0,0,.06)"/>
+      <circle cx="${x}" cy="${y}" r="${size * 0.55}" fill="none" stroke="rgba(0,0,0,.08)"/>
+      <circle cx="${x}" cy="${y}" r="${size * 0.22}" fill="rgba(0,0,0,.07)"/>`;
+  }
+  return `<svg viewBox="0 0 400 500" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <rect width="400" height="500" fill="#F4F1EA"/>
+    <path d="M120 300 L200 480 L280 300 Z" fill="#E8DDCD"/>
+    <path d="M150 300 L200 470 L250 300 Z" fill="#DCCFB9"/>
+    ${leaves.join("")}${flowers}
+  </svg>`;
+}
+function photoHTML(b) {
+  return b.photo
+    ? `<img src="${b.photo}" alt="${b.name}" loading="lazy">`
+    : bouquetSVG(b.colors, b.id);
+}
+const minPrice = b => Math.min(...Object.values(b.prices));
+const fmt = n => n.toLocaleString("uk-UA") + " грн";
+
+/* Каталог: на кожній картці свій вибраний розмір */
+const grid = document.getElementById("grid");
+const cardSize = {};
+BOUQUETS.forEach(b => cardSize[b.id] = "M");
+function cardHTML(b) {
+  const s = cardSize[b.id];
+  return `<div class="card" data-id="${b.id}">
+      <button class="photo-btn" data-open aria-label="Відкрити ${b.name}">
+        <div class="photo">${photoHTML(b)}
+          ${b.type === "season" ? '<span class="badge">сезонний</span>' : ""}
+        </div>
+      </button>
+      <h3>${b.name}</h3>
+      <div class="size-label">Розмір</div>
+      <div class="mini">${Object.keys(b.prices).map(k =>
+        `<button type="button" class="${k === s ? "active" : ""}" data-s="${k}">${k}</button>`).join("")}</div>
+      <div class="card-price">${fmt(b.prices[s])}</div>
+      <button class="order-btn" data-open>Замовити</button>
+    </div>`;
+}
+function renderGrid(filter) {
+  grid.innerHTML = BOUQUETS
+    .filter(b => filter === "all" || b.type === filter)
+    .map(cardHTML).join("");
+}
+document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
+  t.classList.add("active");
+  renderGrid(t.dataset.filter);
+}));
+grid.addEventListener("click", e => {
+  const card = e.target.closest(".card"); if (!card) return;
+  const id = +card.dataset.id;
+  const sizeBtn = e.target.closest(".mini button");
+  if (sizeBtn) {
+    cardSize[id] = sizeBtn.dataset.s;
+    card.querySelectorAll(".mini button").forEach(x => x.classList.toggle("active", x === sizeBtn));
+    card.querySelector(".card-price").textContent = fmt(BOUQUETS.find(b => b.id === id).prices[cardSize[id]]);
+    return;
+  }
+  if (e.target.closest("[data-open]")) openDetail(id, cardSize[id]);
+});
+
+/* Екрани */
+const screens = { catalog: document.getElementById("catalog"),
+  detail: document.getElementById("detail"), thanks: document.getElementById("thanks") };
+const bar = document.getElementById("bar");
+function show(name) {
+  Object.entries(screens).forEach(([k, el]) => el.classList.toggle("hidden", k !== name));
+  bar.classList.toggle("hidden", name !== "detail");
+  window.scrollTo(0, 0);
+}
+
+/* Сторінка букета */
+let current = null, size = "M", delivery = "delivery", pay = "prepay";
+const picked = new Set();
+function openDetail(id, chosen) {
+  current = BOUQUETS.find(b => b.id === id);
+  size = chosen || "M";
+  document.getElementById("dPhoto").innerHTML = photoHTML(current);
+  document.getElementById("dName").textContent = current.name;
+  document.getElementById("dDesc").textContent = current.desc;
+  document.getElementById("dNote").textContent = current.type === "season" ? SEASON_NOTE : CLASSIC_NOTE;
+  picked.clear();
+  pay = "prepay";
+  document.querySelectorAll("#paySeg button").forEach(x => x.classList.toggle("active", x.dataset.v === "prepay"));
+  renderExtras();
+  renderSizes();
+  show("detail");
+}
+
+/* Додатки */
+function renderExtras() {
+  document.getElementById("extras").innerHTML = EXTRAS.map(x =>
+    `<button type="button" class="extra ${picked.has(x.id) ? "active" : ""}" data-x="${x.id}" aria-pressed="${picked.has(x.id)}">
+      <b>${x.name}</b><span>+${fmt(x.price)} · ${x.hint}</span></button>`).join("");
+}
+document.getElementById("extras").addEventListener("click", e => {
+  const b = e.target.closest(".extra"); if (!b) return;
+  picked.has(b.dataset.x) ? picked.delete(b.dataset.x) : picked.add(b.dataset.x);
+  renderExtras(); renderTotals();
+});
+
+/* Підрахунок суми */
+function calc() {
+  const bouquet = current.prices[size];
+  const extras = EXTRAS.filter(x => picked.has(x.id)).reduce((a, x) => a + x.price, 0);
+  const deliv = delivery === "delivery" ? DELIVERY_PRICE : 0;
+  const total = bouquet + extras + deliv;
+  const now = pay === "prepay" ? Math.round(total * PREPAY_PART) : total;
+  return { bouquet, extras, deliv, total, now, rest: total - now };
+}
+function renderTotals() {
+  const c = calc();
+  const names = EXTRAS.filter(x => picked.has(x.id)).map(x => x.name.toLowerCase()).join(", ");
+  document.getElementById("totals").innerHTML =
+    `<div class="row"><span>Букет, розмір ${size}</span><span>${fmt(c.bouquet)}</span></div>` +
+    (c.extras ? `<div class="row"><span>Додатки: ${names}</span><span>${fmt(c.extras)}</span></div>` : "") +
+    (c.deliv ? `<div class="row"><span>Доставка</span><span>${fmt(c.deliv)}</span></div>` : "") +
+    `<div class="row sum"><span>Разом</span><span>${fmt(c.total)}</span></div>` +
+    `<div class="row now"><span>${pay === "prepay" ? "Передоплата зараз" : "До оплати зараз"}</span><span>${fmt(c.now)}</span></div>`;
+  document.getElementById("payHint").textContent = pay === "prepay"
+    ? `Решту ${fmt(c.rest)} можна оплатити при отриманні.`
+    : "Оплачуєте все одразу, при отриманні нічого не потрібно.";
+  document.getElementById("mainBtn").textContent = `Оформити за ${fmt(c.now)}`;
+}
+
+/* Передоплата / вся сума */
+document.getElementById("paySeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  pay = b.dataset.v;
+  document.querySelectorAll("#paySeg button").forEach(x => x.classList.toggle("active", x === b));
+  renderTotals();
+});
+function renderSizes() {
+  const labels = { S: "менший", M: "як на фото", L: "пишніший", XL: "найпишніший" };
+  document.getElementById("dSizes").innerHTML = Object.keys(current.prices).map(k =>
+    `<button type="button" class="size ${k === size ? "active" : ""}" data-s="${k}">${k}<small>${labels[k]}</small></button>`
+  ).join("");
+  document.getElementById("dPrice").textContent = fmt(current.prices[size]);
+  renderTotals();
+}
+document.getElementById("dSizes").addEventListener("click", e => {
+  const b = e.target.closest(".size");
+  if (b) { size = b.dataset.s; cardSize[current.id] = size; renderSizes(); }
+});
+document.getElementById("backBtn").addEventListener("click", () => show("catalog"));
+document.getElementById("againBtn").addEventListener("click", () => {
+  document.getElementById("orderForm").reset(); fillDates(); show("catalog");
+});
+
+/* Доставка / самовивіз */
+document.getElementById("deliverySeg").addEventListener("click", e => {
+  const b = e.target.closest("button"); if (!b) return;
+  delivery = b.dataset.v;
+  document.querySelectorAll("#deliverySeg button").forEach(x => x.classList.toggle("active", x === b));
+  document.getElementById("addrField").classList.toggle("hidden", delivery === "pickup");
+  if (current) renderTotals();
+});
+
+/* Дати на 7 днів вперед */
+function fillDates() {
+  const sel = document.getElementById("fDate");
+  const days = ["неділя","понеділок","вівторок","середа","четвер","пʼятниця","субота"];
+  let html = '<option value="">Оберіть день</option>';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(); d.setDate(d.getDate() + i);
+    const label = i === 0 ? "Сьогодні" : i === 1 ? "Завтра" : days[d.getDay()];
+    const date = d.toLocaleDateString("uk-UA", { day: "numeric", month: "long" });
+    html += `<option>${label}, ${date}</option>`;
+  }
+  sel.innerHTML = html;
+}
+fillDates();
+
+/* Відправка */
+document.getElementById("mainBtn").addEventListener("click", () => {
+  let ok = true, firstBad = null;
+  document.querySelectorAll("#orderForm .field[data-req]").forEach(f => {
+    if (f.classList.contains("hidden")) { f.classList.remove("invalid"); return; }
+    const input = f.querySelector("input, select");
+    const bad = !input.value.trim();
+    f.classList.toggle("invalid", bad);
+    if (bad) { ok = false; firstBad = firstBad || input; }
+  });
+  if (!ok) { firstBad.scrollIntoView({ behavior: "smooth", block: "center" }); firstBad.focus({ preventScroll: true }); return; }
+
+  const c = calc();
+  const extrasList = EXTRAS.filter(x => picked.has(x.id)).map(x => x.name);
+  const order = {
+    bouquet: current.name, size, price: current.prices[size],
+    extras: extrasList, total: c.total, payNow: c.now,
+    payment: pay === "prepay" ? "Передоплата 50%" : "Повна оплата",
+    delivery: delivery === "delivery" ? "Доставка" : "Самовивіз",
+    date: fDate.value, time: fTime.value,
+    address: delivery === "delivery" ? fAddr.value : "",
+    name: fName.value, phone: fPhone.value, note: fNote.value
+  };
+
+  /* ТУТ у справжньому проєкті замовлення відправляється флористу:
+     у sendpulse / make / google sheets через webhook (fetch).
+     У демо просто показуємо екран подяки. */
+  console.log("Замовлення:", order);
+
+  document.getElementById("summary").innerHTML =
+    `<b>${order.bouquet}</b>, розмір ${order.size}, ${fmt(order.price)}<br>
+     ${order.delivery}: ${order.date}, ${order.time}<br>
+     ${order.extras.length ? "Додатки: " + order.extras.join(", ").toLowerCase() + "<br>" : ""}
+     ${order.address ? order.address + "<br>" : ""}Для: ${order.name}<br><br>
+     Разом: <b>${fmt(order.total)}</b><br>
+     ${pay === "prepay" ? `Передоплата: <b>${fmt(order.payNow)}</b>, решта при отриманні` : `Повна оплата: <b>${fmt(order.payNow)}</b>`}`;
+  document.getElementById("tCircle").classList.add("hidden");
+  document.getElementById("tTitle").textContent = "Залишилось оплатити";
+  document.getElementById("tText").textContent = "Після оплати замовлення одразу потрапить до флориста.";
+  document.getElementById("payNote").classList.add("hidden");
+  const payBtn = document.getElementById("payBtn");
+  payBtn.classList.remove("hidden");
+  payBtn.textContent = `Оплатити ${fmt(order.payNow)}`;
+  show("thanks");
+});
+
+document.getElementById("payBtn").addEventListener("click", () => {
+  /* ТУТ у справжньому проєкті відкривається посилання на оплату:
+     tg.openLink(paymentUrl) - посилання створює make через API банку магазину. */
+  document.getElementById("payBtn").classList.add("hidden");
+  document.getElementById("payNote").classList.remove("hidden");
+  document.getElementById("tCircle").classList.remove("hidden");
+  document.getElementById("tTitle").textContent = "Оплату отримано";
+  document.getElementById("tText").textContent = "Флорист уже бачить замовлення і напише вам протягом 10 хвилин.";
+  if (tg && tg.HapticFeedback) tg.HapticFeedback.notificationOccurred("success");
+});
+
+renderGrid("all");
+show("catalog");
+</script>
+</body>
+</html>

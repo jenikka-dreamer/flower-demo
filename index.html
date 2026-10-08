@@ -35,6 +35,33 @@
   .shop-sub { color: var(--muted); font-size: 13px; margin-top: 2px; }
 
   /* вкладки */
+  /* пошук: що шукаєте */
+  .finder { background: var(--soft); border-radius: 16px; padding: 14px; margin-top: 14px; }
+  .finder-title { font: 600 15px 'Montserrat', sans-serif; margin-bottom: 10px; }
+  .finder-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .finder select {
+    width: 100%; border: 1px solid var(--line); border-radius: 12px; background-color: var(--bg);
+    padding: 11px 32px 11px 12px; font: 600 14px 'Open Sans', sans-serif; color: var(--text);
+    appearance: none; -webkit-appearance: none; cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%236E7055' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat; background-position: right 12px center;
+  }
+  .finder select.picked {
+    background-color: var(--accent); border-color: var(--accent); color: var(--on-accent);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%23FFFFFF' stroke-width='1.8' stroke-linecap='round'/%3E%3C/svg%3E");
+  }
+  .finder select:focus-visible { outline: 2px solid var(--accent-dark); outline-offset: 2px; }
+  .reset { background: none; border: 0; color: var(--accent-dark); font: 600 13px 'Open Sans', sans-serif;
+    margin-top: 8px; cursor: pointer; padding: 0; text-decoration: underline; }
+  .empty { grid-column: 1 / -1; text-align: center; color: var(--muted); padding: 28px 8px; }
+  .empty button { margin-top: 10px; }
+
+  /* переваги */
+  .perks { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 14px 0 4px; }
+  .perk { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 6px;
+    font-size: 12px; line-height: 1.35; color: var(--text); padding: 4px 2px; }
+  .perk svg { width: 30px; height: 30px; }
+
   .tabs { display: flex; gap: 8px; margin: 16px 0 18px; }
   .tab {
     border: 1px solid var(--line); background: var(--bg); color: var(--text);
@@ -197,6 +224,47 @@
       <div class="shop">Квіткова лавка</div>
       <div class="shop-sub">Харків · доставка або самовивіз</div>
     </header>
+
+    <div class="finder">
+      <div class="finder-title">Що саме ви шукаєте?</div>
+      <div class="finder-row">
+        <select id="fKind" aria-label="Оберіть квіти">
+          <option value="">Оберіть квіти</option>
+          <option value="box">Бокси</option>
+          <option value="mixed">Збірні букети</option>
+          <option value="rose">Троянди</option>
+          <option value="tulip">Тюльпани</option>
+          <option value="peony">Півонії</option>
+          <option value="bride">Для нареченої</option>
+        </select>
+        <select id="fOcc" aria-label="Оберіть нагоду">
+          <option value="">Оберіть нагоду</option>
+          <option value="birthday">День народження</option>
+          <option value="love">Для коханої</option>
+          <option value="mom">Для мами</option>
+          <option value="wedding">Весілля</option>
+          <option value="noreason">Без приводу</option>
+          <option value="business">Для бізнесу</option>
+        </select>
+      </div>
+      <button class="reset hidden" id="resetBtn" type="button">Скинути фільтри</button>
+    </div>
+
+    <div class="perks">
+      <div class="perk">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 11l12-6 12 6v11l-12 6-12-6z" fill="#EEF0E6" stroke="#8A8C6D" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 11l12 6 12-6M16 17v11" fill="none" stroke="#8A8C6D" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Доставляємо швидко й дбайливо
+      </div>
+      <div class="perk">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 27s-10-6.2-10-13.2A5.6 5.6 0 0116 10.6a5.6 5.6 0 0110 3.2C26 20.8 16 27 16 27z" fill="#EEF0E6" stroke="#8A8C6D" stroke-width="1.6" stroke-linejoin="round"/></svg>
+        Збираємо букети з любовʼю
+      </div>
+      <div class="perk">
+        <svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="16" cy="12" r="3" fill="#8A8C6D"/><g fill="#EEF0E6" stroke="#8A8C6D" stroke-width="1.4"><ellipse cx="16" cy="6.5" rx="3" ry="3.6"/><ellipse cx="21.5" cy="12" rx="3.6" ry="3"/><ellipse cx="16" cy="17.5" rx="3" ry="3.6"/><ellipse cx="10.5" cy="12" rx="3.6" ry="3"/></g><path d="M16 21v8M16 26c-3 0-5-2-5-4 3 0 5 2 5 4z" fill="none" stroke="#8A8C6D" stroke-width="1.6" stroke-linecap="round"/></svg>
+        Завжди свіжі квіти
+      </div>
+    </div>
+
     <div class="tabs" role="tablist">
       <button class="tab active" data-filter="all">Усі</button>
       <button class="tab" data-filter="classic">Завжди в наявності</button>
@@ -319,30 +387,46 @@
    type: "classic" (завжди є) або "season" (залежить від наявності)
    ============================================================ */
 const BOUQUETS = [
-  { id: 1, name: "Ніжний ранок", type: "classic", photo: "",
+  { id: 1, name: "Ніжний ранок", type: "classic", kind: "rose", occ: ["birthday","love","mom","noreason"], photo: "",
     colors: ["#F6C6CF", "#FBE3E6", "#FFFFFF", "#E9A3B4"],
     desc: "Кремові та пудрово-рожеві троянди з евкаліптом. Спокійний букет на будь-який привід.",
     prices: { S: 900, M: 1400, L: 2100, XL: 2900 } },
-  { id: 2, name: "Сонячний", type: "season", photo: "",
+  { id: 2, name: "Сонячний", type: "season", kind: "mixed", occ: ["birthday","noreason","business"], photo: "",
     colors: ["#F4C542", "#FFE08A", "#FFFFFF", "#F2A541"],
     desc: "Соняшники, ромашки й зелень. Пахне літом і настроєм.",
     prices: { S: 750, M: 1150, L: 1700, XL: 2300 } },
-  { id: 3, name: "Лавандове поле", type: "season", photo: "",
+  { id: 3, name: "Лавандове поле", type: "season", kind: "mixed", occ: ["mom","love","noreason"], photo: "",
     colors: ["#B9A7E0", "#D9CEF2", "#9C8BD1", "#FFFFFF"],
     desc: "Гортензія, кущова троянда і лізіантус у бузкових відтінках.",
     prices: { S: 1100, M: 1650, L: 2400, XL: 3200 } },
-  { id: 4, name: "Класика червона", type: "classic", photo: "",
+  { id: 4, name: "Класика червона", type: "classic", kind: "rose", occ: ["love","birthday"], photo: "",
     colors: ["#C0283C", "#D94356", "#A51F33", "#E35D6E"],
     desc: "Червоні троянди в крафтовому папері. Коли хочеться сказати головне без слів.",
     prices: { S: 1000, M: 1600, L: 2500, XL: 3500 } },
-  { id: 5, name: "Біла хмаринка", type: "classic", photo: "",
+  { id: 5, name: "Біла хмаринка", type: "classic", kind: "mixed", occ: ["mom","business","noreason"], photo: "",
     colors: ["#FFFFFF", "#F3F1EC", "#E8E4D9", "#DCE6D2"],
     desc: "Білі хризантеми, гвоздика і гіпсофіла. Легкий і світлий.",
     prices: { S: 700, M: 1050, L: 1550, XL: 2100 } },
-  { id: 6, name: "Персиковий", type: "season", photo: "",
+  { id: 6, name: "Персиковий", type: "season", kind: "mixed", occ: ["birthday","love","mom"], photo: "",
     colors: ["#F7B58C", "#FAD2B4", "#F39A6B", "#FFFFFF"],
     desc: "Півонієподібні троянди і ранункулюси в персикових тонах.",
-    prices: { S: 1200, M: 1800, L: 2650, XL: 3600 } }
+    prices: { S: 1200, M: 1800, L: 2650, XL: 3600 } },
+  { id: 7, name: "Весняні тюльпани", type: "season", kind: "tulip", occ: ["mom","noreason","business"], photo: "",
+    colors: ["#F28DB2", "#FFFFFF", "#F7B6CE", "#E8628F"],
+    desc: "Рожеві й білі тюльпани, зібрані просто, без зайвого. Пахнуть весною.",
+    prices: { S: 650, M: 1000, L: 1500, XL: 2100 } },
+  { id: 8, name: "Півонієва ніжність", type: "season", kind: "peony", occ: ["love","birthday","wedding"], photo: "",
+    colors: ["#F5B8C8", "#FBDDE5", "#EE96AE", "#FFFFFF"],
+    desc: "Пишні рожеві півонії. Сезонні, тож доступні лише кілька тижнів на рік.",
+    prices: { S: 1300, M: 1950, L: 2900, XL: 3900 } },
+  { id: 9, name: "Бокс «Пудра»", type: "classic", kind: "box", occ: ["birthday","mom","business"], photo: "",
+    colors: ["#EBC6C2", "#F6E1DE", "#FFFFFF", "#D9A6A0"],
+    desc: "Троянди й гвоздики в капелюшній коробці. Не потребує вази, зручно дарувати.",
+    prices: { S: 1100, M: 1700, L: 2500, XL: 3400 } },
+  { id: 10, name: "Букет нареченої «Світанок»", type: "classic", kind: "bride", occ: ["wedding"], photo: "",
+    colors: ["#FFFFFF", "#F4EFE6", "#EAD9C6", "#DCE6D2"],
+    desc: "Кремові троянди, еустома й зелень. Збираємо під образ і сукню, обговорюємо з флористом.",
+    prices: { S: 1800, M: 2400, L: 3200, XL: 4200 } }
 ];
 
 /* Додатки до замовлення. Ціни міняються тут. */
@@ -416,17 +500,41 @@ function cardHTML(b) {
       <button class="order-btn" data-open>Замовити</button>
     </div>`;
 }
+/* Фільтри: вкладка + «що шукаєте» працюють разом */
+const fKind = document.getElementById("fKind");
+const fOcc = document.getElementById("fOcc");
+const resetBtn = document.getElementById("resetBtn");
+let tabFilter = "all";
 function renderGrid(filter) {
-  grid.innerHTML = BOUQUETS
-    .filter(b => filter === "all" || b.type === filter)
-    .map(cardHTML).join("");
+  if (filter) tabFilter = filter;
+  const kind = fKind.value, occ = fOcc.value;
+  const list = BOUQUETS.filter(b =>
+    (tabFilter === "all" || b.type === tabFilter) &&
+    (!kind || b.kind === kind) &&
+    (!occ || (b.occ || []).includes(occ)));
+  fKind.classList.toggle("picked", !!kind);
+  fOcc.classList.toggle("picked", !!occ);
+  resetBtn.classList.toggle("hidden", !kind && !occ);
+  grid.innerHTML = list.length
+    ? list.map(cardHTML).join("")
+    : `<div class="empty">Такого букета зараз немає в каталозі.<br>Напишіть флористу, і ми зберемо його під вас 🌿<br>
+       <button class="reset" type="button" data-reset>Показати всі букети</button></div>`;
 }
+function resetFilters() {
+  fKind.value = ""; fOcc.value = ""; tabFilter = "all";
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("active", x.dataset.filter === "all"));
+  renderGrid();
+}
+fKind.addEventListener("change", () => renderGrid());
+fOcc.addEventListener("change", () => renderGrid());
+resetBtn.addEventListener("click", resetFilters);
 document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => {
   document.querySelectorAll(".tab").forEach(x => x.classList.remove("active"));
   t.classList.add("active");
   renderGrid(t.dataset.filter);
 }));
 grid.addEventListener("click", e => {
+  if (e.target.closest("[data-reset]")) { resetFilters(); return; }
   const card = e.target.closest(".card"); if (!card) return;
   const id = +card.dataset.id;
   const sizeBtn = e.target.closest(".mini button");
